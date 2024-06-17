@@ -4,24 +4,59 @@
 <head>
     <meta charset="UTF-8">
     <title>Fetch Current Week Info</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/clipboard.min.js"></script>
 </head>
 <body>
-    <h1>Fetch Current Week Info</h1>
-    <button id="fetchButton">Get Current Week Info</button>
-    
-    <div id="results">
-        <!-- Results will be injected here -->
+    <div class="container mt-5">
+        <h1>Fetch Current Week Info</h1>
+        <div class="form-group">
+            <label for="tableSelect">Select Table</label>
+            <select class="form-control" id="tableSelect">
+                <option value="table1">Option 1</option>
+                <option value="table2">Option 2</option>
+                <option value="table3">Option 3</option>
+                <option value="table4">Option 4</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" id="fetchButton">Get Current Week Info</button>
+        <button class="btn btn-secondary" id="copyButton" style="display:none;">Copy Table</button>
+
+        <div id="results" class="mt-4">
+            <!-- Results will be injected here -->
+        </div>
     </div>
 
     <script>
         $(document).ready(function(){
+            var clipboard = new ClipboardJS('#copyButton', {
+                text: function() {
+                    return $('#results').text();
+                }
+            });
+
+            clipboard.on('success', function(e) {
+                alert('Table data copied to clipboard!');
+                e.clearSelection();
+            });
+
+            clipboard.on('error', function(e) {
+                alert('Failed to copy table data.');
+            });
+
             $("#fetchButton").click(function(){
+                const selectedTable = $("#tableSelect").val();
                 $.ajax({
                     url: "{% url 'fetch_week_info' %}",
-                    method: "GET",
+                    method: "POST",
+                    data: {
+                        table: selectedTable,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
                     success: function(data) {
                         $("#results").html(data);
+                        $("#copyButton").show();
                     },
                     error: function(xhr, status, error) {
                         console.error(error);
