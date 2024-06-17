@@ -1,0 +1,45 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch Current Week Info</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Fetch Current Week Info</h1>
+    <textarea id="queryBox" rows="4" cols="50">
+SELECT * FROM `your-dataset.your-table`
+WHERE DATE_COLUMN >= CURRENT_DATE() - INTERVAL 7 DAY
+LIMIT 50
+    </textarea>
+    <br>
+    <button id="fetchButton">Get Current Week Info</button>
+    
+    <div id="results">
+        <!-- Results will be injected here -->
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $("#fetchButton").click(function(){
+                const query = $("#queryBox").val();
+                $.ajax({
+                    url: "{% url 'fetch_week_info' %}",
+                    method: "POST",
+                    data: {
+                        query: query,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(data) {
+                        $("#results").html(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
