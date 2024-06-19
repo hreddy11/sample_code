@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch Current Week Info</title>
+    <link rel="stylesheet" href="{{ url_for('my_plugin_bp.static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('my_plugin_bp.static', filename='js/jquery.min.js') }}"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Fetch Current Week Info</h1>
+        <div class="form-group mt-3">
+            <label for="tableSelect">Select Table</label>
+            <select class="form-control" id="tableSelect">
+                <option value="dag_id1">Option 1</option>
+                <option value="dag_id2">Option 2</option>
+                <option value="dag_id3">Option 3</option>
+                <option value="dag_id4">Option 4</option>
+            </select>
+        </div>
+        <button class="btn btn-primary mt-3" id="fetchButton">Get Current Week Info</button>
+
+        <div id="results" class="mt-4">
+            <!-- Results will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $("#fetchButton").click(function(){
+                const selectedTable = $("#tableSelect").val();
+                $.ajax({
+                    url: "{{ url_for('my_plugin_bp.fetch_week_info') }}",
+                    method: "POST",
+                    data: { table: selectedTable },
+                    success: function(response) {
+                        $("#results").html(
+                            `<p>Last Run Time: ${response.last_run_time}</p>
+                             <p>Current Triggered Time: ${response.current_time}</p>
+                             <p>Status: ${response.status}</p>`
+                        );
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
